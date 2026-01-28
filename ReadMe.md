@@ -1,4 +1,4 @@
-#WARNING CHANGES HAVEN'T BEEN TESTED!
+# WARNING CHANGES HAVEN'T BEEN TESTED!
 
 .:COPYING:.
 
@@ -28,3 +28,4 @@ iPod Wizard is not in any way affiliated with Apple Computer, Inc.
 
 
 Apple(tm) iPod(tm) are trademarks of Apple Computer, Inc.
+
