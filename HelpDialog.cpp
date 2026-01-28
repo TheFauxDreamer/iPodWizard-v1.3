@@ -175,7 +175,7 @@ void CHelpDialog::OnBnClickedFindGen()
 			{
 				w+=25;
 				pos=w;
-				while (data[w]!='<')
+				while (w < tlen && data[w]!='<' && t < (int)sizeof(geninfo)-1)
 				{
 					geninfo[t]=data[w];
 					w++;
@@ -187,7 +187,7 @@ void CHelpDialog::OnBnClickedFindGen()
 			{
 				w+=25;
 				pos=w;
-				while (data[w]!='<')
+				while (w < tlen && data[w]!='<' && t < (int)sizeof(geninfo)-1)
 				{
 					geninfo[t]=data[w];
 					w++;
@@ -199,6 +199,7 @@ void CHelpDialog::OnBnClickedFindGen()
 		//We found generation ID and stored it in geninfo
 		geninfo[t]=0;
 		curr_genid=atoi(geninfo);
+		delete[] data;
 	}
 	delete devstring;
 
@@ -303,7 +304,7 @@ void CHelpDialog::OnBnClickedFindGen()
 			bFound=TRUE;
 		}
 	}
-	delete buffer;
+	delete[] buffer;
 	if (bFound==FALSE)
 		MessageBox(TEXT("Either your iPod is from an unknown generation or iPodWizard doesn't know about it. Check www.iPodWizard.net website for updates concerning new iPods."));
 	file.Close();

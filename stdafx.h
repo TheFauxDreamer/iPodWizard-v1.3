@@ -8,6 +8,9 @@
 #define VC_EXTRALEAN		// Exclude rarely-used stuff from Windows headers
 #endif
 
+// TODO: Remove these defines and address individual CRT security warnings.
+// These suppress warnings about strcpy, sprintf, etc. being unsafe.
+// Critical call sites have been individually fixed with bounded alternatives.
 #ifndef _CRT_SECURE_NO_DEPRECATE
 #define _CRT_SECURE_NO_DEPRECATE
 #endif

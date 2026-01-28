@@ -57,6 +57,7 @@ static DWORD GetiPodSCSIInfo(char devstring[], int pagecode, unsigned char *bres
 	if (DeviceIoControl(h, IOCTL_SCSI_PASS_THROUGH_DIRECT, request, sizeof(SCSI_PASS_THROUGH_DIRECT), request, sizeof(SCSI_PASS_THROUGH_DIRECT), &returned, NULL))
 	{
 		CloseHandle(h);
+		free(request);
 		if (rsp_buff[1]!=pagecode)
 			return -1;
 		memcpy(bresult,rsp_buff,rsp_buff[3]+4);
@@ -66,6 +67,7 @@ static DWORD GetiPodSCSIInfo(char devstring[], int pagecode, unsigned char *bres
 	{
 		returned=GetLastError();
 		CloseHandle(h);
+		free(request);
 		return returned;
 	}
 }

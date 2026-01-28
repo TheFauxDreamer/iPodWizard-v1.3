@@ -72,7 +72,7 @@ BOOL CIpodFont::Read(LPBYTE lpBuffer, LPBYTE lpEnd)
 	for (i = 0; i < sizeof(m_pHeader2->name); i++)
 	{
 		c = m_pHeader2->name[i];
-		if (bName = TRUE)
+		if (bName == TRUE)
 		{
 			if (c == 0)
 			{
@@ -239,17 +239,12 @@ LPCTSTR	CIpodFont::GetFontStyle()
 	if (m_pHeader1==NULL)
 		return NULL;
 
-	char ststyle[32];
 	if (m_pHeader2->style & 0x01)
-		strcpy(ststyle,"Bold");
+		m_CachedFontStyle = _T("Bold");
 	else
-		strcpy(ststyle,"Regular");
+		m_CachedFontStyle = _T("Regular");
 
-	wchar_t* lpwStr;
-	int nLen = MultiByteToWideChar(CP_ACP, 0, ststyle, -1, NULL, NULL);
-	lpwStr = ( wchar_t* )malloc(( nLen )*sizeof( wchar_t ));
-	MultiByteToWideChar(CP_ACP, 0,  ststyle, -1, lpwStr, nLen);
-	return (LPTSTR)lpwStr;
+	return (LPCTSTR)m_CachedFontStyle;
 }
 
 void CIpodFont::SetFontName(CString sNewName)
@@ -262,7 +257,8 @@ void CIpodFont::SetFontName(CString sNewName)
 	if (strlen(stname)>63)
 		return;
 
-	strcpy(m_pHeader2->name, stname);
+	strncpy(m_pHeader2->name, stname, sizeof(m_pHeader2->name) - 1);
+	m_pHeader2->name[sizeof(m_pHeader2->name) - 1] = '\0';
 }
 
 void CIpodFont::SetFontSize(DWORD iNewSize)
@@ -296,11 +292,11 @@ LPCTSTR CIpodFont::GetFontName()
 	if (m_pHeader2 == NULL)
 		return NULL;
 
-	wchar_t* lpwStr;
 	int nLen = MultiByteToWideChar(CP_ACP, 0, m_pHeader2->name, -1, NULL, NULL);
-	lpwStr = ( wchar_t* )malloc(( nLen )*sizeof( wchar_t ));
+	wchar_t* lpwStr = m_CachedFontName.GetBuffer(nLen);
 	MultiByteToWideChar(CP_ACP, 0, m_pHeader2->name, -1, lpwStr, nLen);
-	return (LPTSTR)lpwStr;
+	m_CachedFontName.ReleaseBuffer();
+	return (LPCTSTR)m_CachedFontName;
 }
 
 DWORD CIpodFont::GetFontBlockLen()

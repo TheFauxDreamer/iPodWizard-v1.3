@@ -18,9 +18,9 @@ COTFFont::COTFFont(void):
 COTFFont::~COTFFont(void)
 {
 	if (m_FontName!=NULL)
-		delete m_FontName;
+		delete[] m_FontName;
 	if (m_FontStyle!=NULL)
-		delete m_FontStyle;
+		delete[] m_FontStyle;
 }
 
 // operations
@@ -193,30 +193,26 @@ WORD COTFFont::GetFontBitDepth()
 
 LPCTSTR	COTFFont::GetFontName()
 {
-	if (m_pHeader==NULL)
+	if (m_pHeader==NULL || m_FontName==NULL)
 		return NULL;
 
-	wchar_t* lpwStr;
-	//LPTSTR lpStr = m_FontName.GetBuffer( m_FontName.GetLength() );
-	LPTSTR lpStr = (LPTSTR)m_FontName;
-	int nLen = MultiByteToWideChar(CP_ACP, 0,(LPCSTR)lpStr, -1, NULL, NULL);
-	lpwStr = ( wchar_t* )malloc(( nLen )*sizeof( wchar_t ));
-	MultiByteToWideChar(CP_ACP, 0, (LPCSTR)lpStr, -1, lpwStr, nLen);
-	return (LPTSTR)lpwStr;
+	int nLen = MultiByteToWideChar(CP_ACP, 0, (LPCSTR)m_FontName, -1, NULL, NULL);
+	wchar_t* lpwStr = m_CachedFontName.GetBuffer(nLen);
+	MultiByteToWideChar(CP_ACP, 0, (LPCSTR)m_FontName, -1, lpwStr, nLen);
+	m_CachedFontName.ReleaseBuffer();
+	return (LPCTSTR)m_CachedFontName;
 }
 
 LPCTSTR	COTFFont::GetFontStyle()
 {
-	if (m_pHeader==NULL)
+	if (m_pHeader==NULL || m_FontStyle==NULL)
 		return NULL;
 
-	wchar_t* lpwStr;
-	//LPTSTR lpStr = m_FontStyle.GetBuffer( m_FontStyle.GetLength() );
-	LPTSTR lpStr = (LPTSTR)m_FontStyle;
-	int nLen = MultiByteToWideChar(CP_ACP, 0,(LPCSTR)lpStr, -1, NULL, NULL);
-	lpwStr = ( wchar_t* )malloc(( nLen )*sizeof( wchar_t ));
-	MultiByteToWideChar(CP_ACP, 0, (LPCSTR)lpStr, -1, lpwStr, nLen);
-	return (LPTSTR)lpwStr;
+	int nLen = MultiByteToWideChar(CP_ACP, 0, (LPCSTR)m_FontStyle, -1, NULL, NULL);
+	wchar_t* lpwStr = m_CachedFontStyle.GetBuffer(nLen);
+	MultiByteToWideChar(CP_ACP, 0, (LPCSTR)m_FontStyle, -1, lpwStr, nLen);
+	m_CachedFontStyle.ReleaseBuffer();
+	return (LPCTSTR)m_CachedFontStyle;
 }
 
 BOOL COTFFont::ParseHDMX()
@@ -264,11 +260,19 @@ BOOL COTFFont::ParseName()
 			strncpy(strname, (char*)(&lpTemp[m_pName->stringOffset+nrd->offset]), nrd->length);
 			strname[nrd->length]='\0';
 			if (nrd->nameID == 1)
-				//m_FontName.Format(TEXT("%s"), strname);
+			{
+				delete[] m_FontName;
 				m_FontName=strname;
+			}
 			else if (nrd->nameID == 2)
-				//m_FontStyle.Format(TEXT("%s"), strname);
+			{
+				delete[] m_FontStyle;
 				m_FontStyle=strname;
+			}
+			else
+			{
+				delete[] strname;
+			}
 		}
 		lpPos+=sizeof(NameRecord);
 	}
@@ -315,7 +319,7 @@ BOOL COTFFont::ParseCMap()
 
 				//get endcount array
 				lpRE=lpPos;
-				USHORT *endCount=new USHORT[sizeof(USHORT)*segCount];
+				USHORT *endCount=new USHORT[segCount];
 				for (j=0;j<segCount;j++)
 				{
 					endCount[j]=SWAPWORD(*((USHORT *)lpPos));
@@ -324,7 +328,7 @@ BOOL COTFFont::ParseCMap()
 				lpPos+=sizeof(USHORT);  //reserved pad = 0
 				//get startcount array
 				lpRS=lpPos;
-				USHORT *startCount=new USHORT[sizeof(USHORT)*segCount];
+				USHORT *startCount=new USHORT[segCount];
 				for (j=0;j<segCount;j++)
 				{
 					startCount[j]=SWAPWORD(*((USHORT *)lpPos));
@@ -332,7 +336,7 @@ BOOL COTFFont::ParseCMap()
 				}
 				//get iddelta array
 				lpDA=lpPos;
-				SHORT *idDelta=new SHORT[sizeof(SHORT)*segCount];
+				SHORT *idDelta=new SHORT[segCount];
 				for (j=0;j<segCount;j++)
 				{
 					idDelta[j]=SWAPWORD(*((SHORT *)lpPos));
@@ -340,7 +344,7 @@ BOOL COTFFont::ParseCMap()
 				}
 				//get rangeoffset array
 				lpRO=lpPos;
-				USHORT *idRangeOffset=new USHORT[sizeof(USHORT)*segCount];
+				USHORT *idRangeOffset=new USHORT[segCount];
 				for (j=0;j<segCount;j++)
 				{
 					idRangeOffset[j]=SWAPWORD(*((USHORT *)lpPos));
@@ -350,7 +354,7 @@ BOOL COTFFont::ParseCMap()
 				//*(idRangeOffset[i]/2 + (c - startCount[i]) + &idRangeOffset[i])
 				USHORT leng=m_pEncFormat4->length;
 				leng=leng-8*sizeof(USHORT)-4*segCount*sizeof(USHORT);
-				USHORT *glyphs=new USHORT[sizeof(USHORT)*leng];
+				USHORT *glyphs=new USHORT[leng];
 				//get glyphs
 				for (j=0;j<leng/2;j++)
 				{
@@ -709,7 +713,7 @@ void COTFFont::SetFontPixel(WORD index, LONG x, LONG y, COLORREF color)
 
 WORD COTFFont::GetGlyphIndex(WORD index)
 {
-	if (index+1>m_GlyphTable.GetCount())
+	if (index >= m_GlyphTable.GetCount())
 		return 1;
 	return m_GlyphTable.GetAt(index);
 }

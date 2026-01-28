@@ -151,7 +151,7 @@ BOOL CPicture::Read(LPBYTE lpBuffer, BOOL bScan, LPBYTE lpImageOffset)
 			m_pHeader->width == 0 || m_pHeader->height == 0 ||
 			m_pHeader->blockLen < (m_pHeader->height * m_pHeader->width * m_pHeader->bitDepth / 8) ||
 			(m_pHeader->bitDepth != 1 && m_pHeader->bitDepth != 2 &&
-			m_pHeader->bitDepth != 4 && m_pHeader->bitDepth != 16) || *((__int64*)m_pHeader->b1)!=0)
+			m_pHeader->bitDepth != 4 && m_pHeader->bitDepth != 16) || memcmp(m_pHeader->b1, "\0\0\0\0\0\0\0\0", 8)!=0)
 		{
 			// bad image
 			m_pHeader = NULL;
@@ -164,7 +164,7 @@ BOOL CPicture::Read(LPBYTE lpBuffer, BOOL bScan, LPBYTE lpImageOffset)
 				m_pHeader2->width == 0 || m_pHeader2->height == 0 ||
 				m_pHeader2->blockLen < (m_pHeader2->height * m_pHeader2->width * m_pHeader2->bitDepth / 8) ||
 				(m_pHeader2->bitDepth != 1 && m_pHeader2->bitDepth != 2 &&
-				m_pHeader2->bitDepth != 4 && m_pHeader2->bitDepth != 16) || *((__int64*)m_pHeader2->b1)!=0)
+				m_pHeader2->bitDepth != 4 && m_pHeader2->bitDepth != 16) || memcmp(m_pHeader2->b1, "\0\0\0\0\0\0\0\0", 8)!=0)
 			{
 				// bad image
 				m_pHeader2 = NULL;

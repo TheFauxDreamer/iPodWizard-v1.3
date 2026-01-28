@@ -374,6 +374,8 @@ private:
 	//CString		m_FontStyle;
 	char*		m_FontName;
 	char*		m_FontStyle;
+	CString		m_CachedFontName;
+	CString		m_CachedFontStyle;
 	WORD		m_BitDepth;
 	WORD		m_FontSize;
 	DWORD		m_BigLen;

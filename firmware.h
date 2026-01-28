@@ -578,5 +578,8 @@ private:
 	void doRC4keyExpansion(unsigned char *thisKey);
 
 public:
+	FileDecrypt() : cipherBox(NULL), cipherKeyArray(NULL) {}
+	~FileDecrypt() { delete[] cipherBox; delete[] cipherKeyArray; }
+
 	unsigned char *decryptFirmwareFile(unsigned char *fileData, int key, unsigned long data_len);
 };

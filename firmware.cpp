@@ -1338,6 +1338,7 @@ bool CFirmware::FindResourceID(int i, int id)
 		}
 		break;
 	case 3: //tcmd
+		if (TCMDRecList.empty()) break;
 		for (j = 0; j < TCMDRecList.at(0)->element.elements.size(); j++)
 		{
 			if (TCMDRecList.at(0)->element.elements.at(j)->id==id)
@@ -1449,8 +1450,7 @@ unsigned char *FileDecrypt::decryptFirmwareFile(unsigned char *fileData, int key
 		cipherBox=new int [256];
 		cipherKeyArray=new int [256];
 		//try{
-		unsigned char* theKey = (unsigned char*)malloc(sizeof(key));
-		memset(theKey, 0, sizeof(key));
+		unsigned char theKey[4] = {0};
 		memcpy(theKey, &key, sizeof(key));
 		doRC4keyExpansion(theKey);
 		data= doRC4Decrypt(fileData, data_len);

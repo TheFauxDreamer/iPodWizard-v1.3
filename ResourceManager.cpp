@@ -98,7 +98,7 @@ BOOL CResourceManager::LoadResource(LPCTSTR type, LPCTSTR name)
 		return FALSE;
 
 	m_ResourceSize = SizeofResource(m_hModule, hRsrc);
-	if (m_ResourceSize == NULL)
+	if (m_ResourceSize == 0)
 		return FALSE;
 
 	HGLOBAL hGlobal = ::LoadResource(m_hModule, hRsrc);

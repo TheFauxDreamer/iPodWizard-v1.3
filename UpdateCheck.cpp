@@ -100,7 +100,7 @@ void CUpdateCheck::Check(const CString& strURL)
 				DWORD dwMSWeb;
 				DWORD dwLSWeb;
 				TCHAR szBufferW[1026];
-				MultiByteToWideChar(CP_ACP, 0, szBuffer, sizeof(szBuffer), szBufferW, sizeof(szBufferW));
+				MultiByteToWideChar(CP_ACP, 0, szBuffer, dwRead + 1, szBufferW, _countof(szBufferW));
 				AfxExtractSubString(strSubMS1, szBufferW, 0, '|');
 				AfxExtractSubString(strSubMS2, szBufferW, 1, '|');
 				AfxExtractSubString(strSubLS1, szBufferW, 3, '|');
@@ -151,16 +151,16 @@ HINSTANCE CUpdateCheck::GotoURL(LPCTSTR url, int showcmd)
     if ((UINT)result <= HINSTANCE_ERROR) 
 	{
 
-        if (GetRegKey(HKEY_CLASSES_ROOT, _T(".htm"), key) == ERROR_SUCCESS) 
+        if (GetRegKey(HKEY_CLASSES_ROOT, _T(".htm"), key) == ERROR_SUCCESS)
 		{
-            lstrcat(key, _T("\\shell\\open\\command"));
+            _tcsncat(key, _T("\\shell\\open\\command"), _countof(key) - _tcslen(key) - 1);
 
-            if (GetRegKey(HKEY_CLASSES_ROOT,key,key) == ERROR_SUCCESS) 
+            if (GetRegKey(HKEY_CLASSES_ROOT,key,key) == ERROR_SUCCESS)
 			{
                 TCHAR *pos;
                 pos = _tcsstr(key, _T("\"%1\""));
                 if (pos == NULL) {                     // No quotes found
-                    pos = _tcsstr(key, _T("%1"));      // Check for %1, without quotes 
+                    pos = _tcsstr(key, _T("%1"));      // Check for %1, without quotes
                     if (pos == NULL)                   // No parameter at all...
                         pos = key+lstrlen(key)-1;
                     else
@@ -169,8 +169,8 @@ HINSTANCE CUpdateCheck::GotoURL(LPCTSTR url, int showcmd)
                 else
                     *pos = '\0';                       // Remove the parameter
 
-                lstrcat(pos, _T(" "));
-                lstrcat(pos, url);
+                _tcsncat(pos, _T(" "), _countof(key) - (pos - key) - 1);
+                _tcsncat(pos, url, _countof(key) - (pos - key) - _tcslen(pos) - 1);
 
 				char key_a[520];
 				WideCharToMultiByte(CP_ACP, 0, key, 520, key_a, 520, 0, 0);
@@ -187,12 +187,12 @@ LONG CUpdateCheck::GetRegKey(HKEY key, LPCTSTR subkey, LPTSTR retdata)
     HKEY hkey;
     LONG retval = RegOpenKeyEx(key, subkey, 0, KEY_QUERY_VALUE, &hkey);
 
-    if (retval == ERROR_SUCCESS) 
+    if (retval == ERROR_SUCCESS)
 	{
         long datasize = MAX_PATH;
         TCHAR data[MAX_PATH];
         RegQueryValue(hkey, NULL, data, &datasize);
-        lstrcpy(retdata,data);
+        lstrcpyn(retdata, data, MAX_PATH);
         RegCloseKey(hkey);
     }
 

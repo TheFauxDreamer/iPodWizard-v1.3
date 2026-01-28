@@ -106,6 +106,9 @@ public:
 	LPCTSTR						GetFontName();
 	DWORD						GetFontSize();
 	LPCTSTR						GetFontStyle();
+
+	CString						m_CachedFontName;
+	CString						m_CachedFontStyle;
 	void						SetFontName(CString sNewName);
 	void						SetFontSize(DWORD iNewSize);
 	void						SetFontStyle(CString sNewStyle);

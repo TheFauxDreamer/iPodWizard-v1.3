@@ -6,7 +6,7 @@
 // Copyright (C) 1997 - 1999 Chris Maunder
 // All rights reserved. May not be sold for profit.
 //
-// Thanks to Pål K. Tønder for auto-size and window caption changes.
+// Thanks to Pï¿½l K. Tï¿½nder for auto-size and window caption changes.
 //
 // "GotoURL" function by Stuart Patterson
 // As seen in the August, 1997 Windows Developer's Journal.
@@ -334,7 +334,7 @@ BOOL CHyperLink::GetAutoSize() const
 // then the window is merely shrunk, but if it is centred or right
 // justified then the window will have to be moved as well.
 //
-// Suggested by Pål K. Tønder 
+// Suggested by Pï¿½l K. Tï¿½nder 
 
 void CHyperLink::PositionWindow()
 {
@@ -424,7 +424,7 @@ LONG CHyperLink::GetRegKey(HKEY key, LPCTSTR subkey, LPTSTR retdata)
         long datasize = MAX_PATH;
         TCHAR data[MAX_PATH];
         RegQueryValue(hkey, NULL, data, &datasize);
-        lstrcpy(retdata,data);
+        lstrcpyn(retdata, data, MAX_PATH);
         RegCloseKey(hkey);
     }
 
@@ -465,13 +465,13 @@ HINSTANCE CHyperLink::GotoURL(LPCTSTR url, int showcmd)
     if ((UINT)result <= HINSTANCE_ERROR) {
 
         if (GetRegKey(HKEY_CLASSES_ROOT, _T(".htm"), key) == ERROR_SUCCESS) {
-            lstrcat(key, _T("\\shell\\open\\command"));
+            _tcsncat(key, _T("\\shell\\open\\command"), _countof(key) - _tcslen(key) - 1);
 
             if (GetRegKey(HKEY_CLASSES_ROOT,key,key) == ERROR_SUCCESS) {
                 TCHAR *pos;
                 pos = _tcsstr(key, _T("\"%1\""));
                 if (pos == NULL) {                     // No quotes found
-                    pos = _tcsstr(key, _T("%1"));      // Check for %1, without quotes 
+                    pos = _tcsstr(key, _T("%1"));      // Check for %1, without quotes
                     if (pos == NULL)                   // No parameter at all...
                         pos = key+lstrlen(key)-1;
                     else
@@ -480,8 +480,8 @@ HINSTANCE CHyperLink::GotoURL(LPCTSTR url, int showcmd)
                 else
                     *pos = '\0';                       // Remove the parameter
 
-                lstrcat(pos, _T(" "));
-                lstrcat(pos, url);
+                _tcsncat(pos, _T(" "), _countof(key) - (pos - key) - 1);
+                _tcsncat(pos, url, _countof(key) - (pos - key) - _tcslen(pos) - 1);
 
                 USES_CONVERSION;
                 result = (HINSTANCE) WinExec(T2A(key),showcmd);
