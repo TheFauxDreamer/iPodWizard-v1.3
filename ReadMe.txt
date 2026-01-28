@@ -1,3 +1,5 @@
+#WARNING CHANGES HAVEN'T BEEN TESTED!
+
 .:COPYING:.
 
 This program is free software; you can redistribute it and/or
@@ -23,5 +25,6 @@ We can't be held responsible for the use you make with this program
 or any damage it could cause to you iPod.
 
 iPod Wizard is not in any way affiliated with Apple Computer, Inc.
+
 
 Apple(tm) iPod(tm) are trademarks of Apple Computer, Inc.
